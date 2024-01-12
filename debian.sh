@@ -729,7 +729,7 @@ chmod +x ~/agent.sh
 
 if [ "${WPT_INTERACTIVE,,}" == 'n' ]; then
 
-Overwrite the existing user crontab
+# Overwrite the existing user crontab
 echo "Setting up crontab..."
 echo "@reboot ${PWD}/startup.sh >> ${PWD}/logfile.log 2>&1" | crontab -
 
