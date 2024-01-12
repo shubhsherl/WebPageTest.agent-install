@@ -730,7 +730,16 @@ chmod +x ~/agent.sh
 if [ "${WPT_INTERACTIVE,,}" == 'n' ]; then
 
 # Overwrite the existing user crontab
-echo "@reboot ${PWD}/startup.sh" | crontab -
+echo "Setting up crontab..."
+echo "@reboot ${PWD}/startup.sh >> ${PWD}/logfile.log 2>&1" | crontab -
+
+sudo systemctl restart cron
+
+echo "List crontab..."
+echo "$(crontab -l)"
+
+# echo "Setting up rc.local..."
+# echo "${PWD}/startup.sh" >> /etc/rc.local
 
 # Allow X to be started within the screen session
 sudo sed -i 's/allowed_users=console/allowed_users=anybody/g' /etc/X11/Xwrapper.config || true
