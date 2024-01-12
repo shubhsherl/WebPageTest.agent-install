@@ -133,7 +133,9 @@ else
         sleep 1
     done
 fi
-# git config --global --add safe.directory $HOME/wptagent
+
+git config --global --add safe.directory /home/ubuntu/wptagent
+sudo chown -R ubuntu /home/ubuntu/wptagent
 
 #**************************************************************************************************
 # OS Packages
