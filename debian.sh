@@ -56,7 +56,8 @@ set -eu
 
 # Prompt for the configuration options
 echo "Installing and configuring WebPageTest agent..."
-echo
+
+HOME="/home/ubuntu"
 
 if [ "${WPT_INTERACTIVE,,}" == 'n' ]; then
     while [[ $DISABLE_IPV6 == '' ]]
@@ -86,7 +87,7 @@ sudo date
 # Make sure sudo doesn't prompt for a password
 echo "${USER} ALL=(ALL:ALL) NOPASSWD:ALL" | sudo tee "/etc/sudoers.d/wptagent"
 
-cd ~
+cd $HOME
 until sudo apt -y update
 do
     sleep 1
@@ -119,7 +120,7 @@ fi
 # Agent code
 #**************************************************************************************************
 
-cd ~
+cd $HOME
 rm -rf wptagent
 if [ "${WPT_INTERACTIVE,,}" == 'y' ]; then
     until git clone --branch=$WPT_BRANCH https://github.com/shubhsherl/wptagent.git
@@ -159,13 +160,13 @@ sudo fc-cache -f -v
 
 # ffmpeg (built) manually for Raspbian
 if [ "${LINUX_DISTRO}" == 'Raspbian' ]; then
-    cd ~
+    cd $HOME
     git clone --depth 1 https://github.com/FFmpeg/FFmpeg.git ffmpeg
     cd ffmpeg
     ./configure --extra-ldflags="-latomic" --arch=armel --target-os=linux --enable-gpl --enable-libx264 --enable-nonfree
     make -j4
     sudo make install
-    cd ~
+    cd $HOME
     rm -rf ffmpeg
 else
     until sudo apt -y install ffmpeg
@@ -184,11 +185,11 @@ sudo npm update -g
 #**************************************************************************************************
 # Exiftool (latest from source)
 #**************************************************************************************************
-git clone https://github.com/exiftool/exiftool.git ~/exiftool
-cd ~/exiftool
+git clone https://github.com/exiftool/exiftool.git $HOME/exiftool
+cd $HOME/exiftool
 perl Makefile.PL
 sudo make install
-cd ~
+cd $HOME
 
 #**************************************************************************************************
 # Android device support
@@ -235,7 +236,7 @@ if [ "${AGENT_MODE,,}" == 'android' ]; then
     echo "SUBSYSTEM==\"usb\", ATTR{idVendor}==\"0bb4\", MODE=\"0666\", GROUP=\"plugdev\", OWNER=\"$USER\"" | sudo tee -a /etc/udev/rules.d/51-android.rules
     echo "SUBSYSTEM==\"usb\", ATTR{idVendor}==\"1bbb\", MODE=\"0666\", GROUP=\"plugdev\", OWNER=\"$USER\"" | sudo tee -a /etc/udev/rules.d/51-android.rules
     echo "SUBSYSTEM==\"usb\", ATTR{idVendor}==\"2a70\", MODE=\"0666\", GROUP=\"plugdev\", OWNER=\"$USER\"" | sudo tee -a /etc/udev/rules.d/51-android.rules
-    #sudo cp ~/wptagent/misc/adb/arm/adb /usr/bin/adb
+    #sudo cp $HOME/wptagent/misc/adb/arm/adb /usr/bin/adb
     sudo udevadm control --reload-rules
     sudo service udev restart
 fi
@@ -254,14 +255,14 @@ if [ "${AGENT_MODE,,}" == 'ios' ]; then
   do
       sleep 1
   done
-  cd ~
+  cd $HOME
 
   git clone --depth 1 https://github.com/libimobiledevice/libplist.git libplist
   cd libplist
   ./autogen.sh
   make
   sudo make install
-  cd ~
+  cd $HOME
   rm -rf libplist
 
   git clone --depth 1 https://github.com/libimobiledevice/libusbmuxd.git libusbmuxd
@@ -269,7 +270,7 @@ if [ "${AGENT_MODE,,}" == 'ios' ]; then
   ./autogen.sh
   make
   sudo make install
-  cd ~
+  cd $HOME
   rm -rf libusbmuxd
 
   git clone --depth 1 https://github.com/libimobiledevice/libimobiledevice.git libimobiledevice
@@ -277,7 +278,7 @@ if [ "${AGENT_MODE,,}" == 'ios' ]; then
   ./autogen.sh
   make
   sudo make install
-  cd ~
+  cd $HOME
   rm -rf libimobiledevice
 
   git clone --depth 1 https://github.com/libimobiledevice/usbmuxd.git usbmuxd
@@ -285,7 +286,7 @@ if [ "${AGENT_MODE,,}" == 'ios' ]; then
   ./autogen.sh
   make
   sudo make install
-  cd ~
+  cd $HOME
   rm -rf usbmuxd
 
   git clone --depth 1 https://github.com/google/ios-webkit-debug-proxy.git ios-webkit-debug-proxy
@@ -293,7 +294,7 @@ if [ "${AGENT_MODE,,}" == 'ios' ]; then
   ./autogen.sh
   make
   sudo make install
-  cd ~
+  cd $HOME
   rm -rf ios-webkit-debug-proxy
 
   sudo sh -c 'echo /usr/local/lib > /etc/ld.so.conf.d/libimobiledevice-libs.conf'
@@ -494,7 +495,7 @@ if [ "${LINUX_DISTRO}" == 'Raspbian' ]; then
 fi
 
 # configure watchdog
-cd ~
+cd $HOME
 echo "test-binary = $PWD/wptagent/alive3.sh" | sudo tee -a /etc/watchdog.conf
 
 fi
@@ -505,45 +506,45 @@ fi
 if [ "${WPT_INTERACTIVE,,}" == 'n' ]; then
 
 # build the startup script
-echo '#!/bin/sh' > ~/startup.sh
-echo "PATH=$PWD/bin:$PWD/.local/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/games:/usr/local/games:/snap/bin" >> ~/startup.sh
-echo 'sudo DEBIAN_FRONTEND=noninteractive apt update -yq' >> ~/startup.sh
-echo 'sudo DEBIAN_FRONTEND=noninteractive apt install ca-certificates -yq' >> ~/startup.sh
-# echo 'cd ~' >> ~/startup.sh
-echo 'if [ -e /root/first.run ]' >> ~/startup.sh
-echo 'then' >> ~/startup.sh
-echo '    screen -dmS init /root/firstrun.sh' >> ~/startup.sh
-echo 'else' >> ~/startup.sh
-echo '    screen -dmS agent /root/agent.sh' >> ~/startup.sh
-echo 'fi' >> ~/startup.sh
-# echo 'sudo service watchdog restart' >> ~/startup.sh
-chmod +x ~/startup.sh
+echo '#!/bin/sh' > $HOME/startup.sh
+echo "PATH=$PWD/bin:$PWD/.local/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/games:/usr/local/games:/snap/bin" >> $HOME/startup.sh
+echo 'sudo DEBIAN_FRONTEND=noninteractive apt update -yq' >> $HOME/startup.sh
+echo 'sudo DEBIAN_FRONTEND=noninteractive apt install ca-certificates -yq' >> $HOME/startup.sh
+# echo 'cd $HOME' >> $HOME/startup.sh
+echo "if [ -e $HOME/first.run ]" >> $HOME/startup.sh
+echo 'then' >> $HOME/startup.sh
+echo '    screen -dmS init $HOME/firstrun.sh' >> $HOME/startup.sh
+echo 'else' >> $HOME/startup.sh
+echo '    screen -dmS agent $HOME/agent.sh' >> $HOME/startup.sh
+echo 'fi' >> $HOME/startup.sh
+# echo 'sudo service watchdog restart' >> $HOME/startup.sh
+chmod +x $HOME/startup.sh
 
 fi
 
 #**************************************************************************************************
-# First-run Script (reboot the first time after starting if ~/first.run file exists)
+# First-run Script (reboot the first time after starting if $HOME/first.run file exists)
 #**************************************************************************************************
 if [ "${WPT_INTERACTIVE,,}" == 'n' ]; then
 
 # build the firstrun script
-echo '#!/bin/sh' > ~/firstrun.sh
-echo 'cd ~' >> ~/firstrun.sh
-echo 'until sudo apt -y update' >> ~/firstrun.sh
-echo 'do' >> ~/firstrun.sh
-echo '    sleep 1' >> ~/firstrun.sh
-echo 'done' >> ~/firstrun.sh
-echo 'until sudo DEBIAN_FRONTEND=noninteractive apt install ca-certificates -yq' >> ~/firstrun.sh
-echo 'do' >> ~/firstrun.sh
-echo '    sleep 1' >> ~/firstrun.sh
-echo 'done' >> ~/firstrun.sh
-echo 'until sudo DEBIAN_FRONTEND=noninteractive apt -yq -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confold" dist-upgrade' >> ~/firstrun.sh
-echo 'do' >> ~/firstrun.sh
-echo '    sleep 1' >> ~/firstrun.sh
-echo 'done' >> ~/firstrun.sh
-echo 'rm ~/first.run' >> ~/firstrun.sh
-echo 'sudo reboot' >> ~/firstrun.sh
-chmod +x ~/firstrun.sh
+echo '#!/bin/sh' > $HOME/firstrun.sh
+echo 'cd $HOME' >> $HOME/firstrun.sh
+echo 'until sudo apt -y update' >> $HOME/firstrun.sh
+echo 'do' >> $HOME/firstrun.sh
+echo '    sleep 1' >> $HOME/firstrun.sh
+echo 'done' >> $HOME/firstrun.sh
+echo 'until sudo DEBIAN_FRONTEND=noninteractive apt install ca-certificates -yq' >> $HOME/firstrun.sh
+echo 'do' >> $HOME/firstrun.sh
+echo '    sleep 1' >> $HOME/firstrun.sh
+echo 'done' >> $HOME/firstrun.sh
+echo 'until sudo DEBIAN_FRONTEND=noninteractive apt -yq -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confold" dist-upgrade' >> $HOME/firstrun.sh
+echo 'do' >> $HOME/firstrun.sh
+echo '    sleep 1' >> $HOME/firstrun.sh
+echo 'done' >> $HOME/firstrun.sh
+echo 'rm $HOME/first.run' >> $HOME/firstrun.sh
+echo 'sudo reboot' >> $HOME/firstrun.sh
+chmod +x $HOME/firstrun.sh
 
 fi
 
@@ -560,168 +561,168 @@ NAME_OPTION=''
 if [ $WPT_DEVICE_NAME != '' ]; then
   NAME_OPTION="--name \"$WPT_DEVICE_NAME\""
 fi
-echo '#!/bin/sh' > ~/agent.sh
+echo '#!/bin/sh' > $HOME/agent.sh
 
 if [ "${WPT_INTERACTIVE,,}" == 'y' ]; then
 
 # Agent invocation (depending on config)
 if [ "${AGENT_MODE,,}" == 'android' ]; then
-    echo "python3 ~/wptagent/wptagent.py -vvvv $NAME_OPTION --location $WPT_LOCATION $KEY_OPTION --server \"https://$WPT_SERVER/work/\" --android" >> ~/agent.sh
+    echo "python3 $HOME/wptagent/wptagent.py -vvvv $NAME_OPTION --location $WPT_LOCATION $KEY_OPTION --server \"https://$WPT_SERVER/work/\" --android" >> $HOME/agent.sh
 fi
 if [ "${AGENT_MODE,,}" == 'ios' ]; then
-    echo "python3 ~/wptagent/wptagent.py -vvvv $NAME_OPTION --location $WPT_LOCATION $KEY_OPTION --server \"https://$WPT_SERVER/work/\" --iOS" >> ~/agent.sh
+    echo "python3 $HOME/wptagent/wptagent.py -vvvv $NAME_OPTION --location $WPT_LOCATION $KEY_OPTION --server \"https://$WPT_SERVER/work/\" --iOS" >> $HOME/agent.sh
 fi
 if [ "${AGENT_MODE,,}" == 'desktop' ]; then
-    echo "python3 ~/wptagent/wptagent.py -vvvv --server \"https://$WPT_SERVER/work/\" --location $WPT_LOCATION $KEY_OPTION" >> ~/agent.sh
+    echo "python3 $HOME/wptagent/wptagent.py -vvvv --server \"https://$WPT_SERVER/work/\" --location $WPT_LOCATION $KEY_OPTION" >> $HOME/agent.sh
 fi
 
 else
 
-echo 'export DEBIAN_FRONTEND=noninteractive' >> ~/agent.sh
-echo 'cd ~/wptagent' >> ~/agent.sh
+echo 'export DEBIAN_FRONTEND=noninteractive' >> $HOME/agent.sh
+echo 'cd $HOME/wptagent' >> $HOME/agent.sh
 
 # Wait for networking to become available and update the package list
-echo 'sleep 10' >> ~/agent.sh
+echo 'sleep 10' >> $HOME/agent.sh
 
 # Browser Certificates
 if [ "${WPT_UPDATE_BROWSERS,,}" == 'y' ]; then
     if [ "${LINUX_DISTRO}" != 'Raspbian' ]; then
-        echo 'echo "Updating browser certificates"' >> ~/agent.sh
+        echo 'echo "Updating browser certificates"' >> $HOME/agent.sh
         if [ "${WPT_CHROME,,}" == 'y' ]; then
-            echo 'wget -q -O - https://dl.google.com/linux/linux_signing_key.pub | sudo apt-key add -' >> ~/agent.sh
+            echo 'wget -q -O - https://dl.google.com/linux/linux_signing_key.pub | sudo apt-key add -' >> $HOME/agent.sh
         fi
 
         # if [ "${WPT_VB,,}" == 'y' ]; then
-        #     echo 'sudo add-apt-repository -y ppa:ubuntu-mozilla-daily/ppa' >> ~/agent.sh
-        #     echo 'sudo add-apt-repository -y ppa:mozillateam/ppa' >> ~/agent.sh
+        #     echo 'sudo add-apt-repository -y ppa:ubuntu-mozilla-daily/ppa' >> $HOME/agent.sh
+        #     echo 'sudo add-apt-repository -y ppa:mozillateam/ppa' >> $HOME/agent.sh
         # fi
 
         if [ "${WPT_FIREFOX,,}" == 'y' ]; then
-            echo 'sudo add-apt-repository -y ppa:ubuntu-mozilla-daily/ppa' >> ~/agent.sh
-            echo 'sudo add-apt-repository -y ppa:mozillateam/ppa' >> ~/agent.sh
+            echo 'sudo add-apt-repository -y ppa:ubuntu-mozilla-daily/ppa' >> $HOME/agent.sh
+            echo 'sudo add-apt-repository -y ppa:mozillateam/ppa' >> $HOME/agent.sh
         fi
 
         if [ "${WPT_BRAVE,,}" == 'y' ]; then
-            echo 'curl -s https://www.webpagetest.org/keys/brave/release.asc | sudo apt-key --keyring /etc/apt/trusted.gpg.d/brave-browser-release.gpg add -' >> ~/agent.sh
-            echo 'curl -s https://www.webpagetest.org/keys/brave/beta.asc | sudo apt-key --keyring /etc/apt/trusted.gpg.d/brave-browser-prerelease.gpg add -' >> ~/agent.sh
-            echo 'curl -s https://www.webpagetest.org/keys/brave/dev.asc | sudo apt-key --keyring /etc/apt/trusted.gpg.d/brave-browser-prerelease.gpg add -' >> ~/agent.sh
-            echo 'curl -s https://www.webpagetest.org/keys/brave/nightly.asc | sudo apt-key --keyring /etc/apt/trusted.gpg.d/brave-browser-prerelease.gpg add -' >> ~/agent.sh
+            echo 'curl -s https://www.webpagetest.org/keys/brave/release.asc | sudo apt-key --keyring /etc/apt/trusted.gpg.d/brave-browser-release.gpg add -' >> $HOME/agent.sh
+            echo 'curl -s https://www.webpagetest.org/keys/brave/beta.asc | sudo apt-key --keyring /etc/apt/trusted.gpg.d/brave-browser-prerelease.gpg add -' >> $HOME/agent.sh
+            echo 'curl -s https://www.webpagetest.org/keys/brave/dev.asc | sudo apt-key --keyring /etc/apt/trusted.gpg.d/brave-browser-prerelease.gpg add -' >> $HOME/agent.sh
+            echo 'curl -s https://www.webpagetest.org/keys/brave/nightly.asc | sudo apt-key --keyring /etc/apt/trusted.gpg.d/brave-browser-prerelease.gpg add -' >> $HOME/agent.sh
         fi
 
         if [ "${WPT_EDGE,,}" == 'y' ]; then
-            echo 'curl -s https://packages.microsoft.com/keys/microsoft.asc | sudo apt-key --keyring /etc/apt/trusted.gpg.d/microsoft.gpg add -' >> ~/agent.sh
+            echo 'curl -s https://packages.microsoft.com/keys/microsoft.asc | sudo apt-key --keyring /etc/apt/trusted.gpg.d/microsoft.gpg add -' >> $HOME/agent.sh
         fi
 
         if [ "${WPT_OPERA,,}" == 'y' ]; then
-            echo 'wget -qO- https://www.webpagetest.org/keys/opera/archive.key | sudo apt-key add -' >> ~/agent.sh
+            echo 'wget -qO- https://www.webpagetest.org/keys/opera/archive.key | sudo apt-key add -' >> $HOME/agent.sh
         fi
     fi
 
     if [ "${WPT_VIVALDI,,}" == 'y' ]; then
-        echo 'wget -qO- https://www.webpagetest.org/keys/vivaldi/linux_signing_key.pub | sudo apt-key add -' >> ~/agent.sh
+        echo 'wget -qO- https://www.webpagetest.org/keys/vivaldi/linux_signing_key.pub | sudo apt-key add -' >> $HOME/agent.sh
     fi
 fi
 
 # OS Update
 if [ "${WPT_UPDATE_OS,,}" == 'y' ]; then
-    echo 'until sudo apt -y update' >> ~/agent.sh
-    echo 'do' >> ~/agent.sh
-    echo '    sleep 1' >> ~/agent.sh
-    echo 'done' >> ~/agent.sh
-    echo 'echo "Updating OS"' >> ~/agent.sh
-    echo 'until sudo DEBIAN_FRONTEND=noninteractive apt -yq -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confold" dist-upgrade' >> ~/agent.sh
-    echo 'do' >> ~/agent.sh
-    echo '    sudo apt -f install' >> ~/agent.sh
-    echo '    sleep 1' >> ~/agent.sh
-    echo 'done' >> ~/agent.sh
+    echo 'until sudo apt -y update' >> $HOME/agent.sh
+    echo 'do' >> $HOME/agent.sh
+    echo '    sleep 1' >> $HOME/agent.sh
+    echo 'done' >> $HOME/agent.sh
+    echo 'echo "Updating OS"' >> $HOME/agent.sh
+    echo 'until sudo DEBIAN_FRONTEND=noninteractive apt -yq -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confold" dist-upgrade' >> $HOME/agent.sh
+    echo 'do' >> $HOME/agent.sh
+    echo '    sudo apt -f install' >> $HOME/agent.sh
+    echo '    sleep 1' >> $HOME/agent.sh
+    echo 'done' >> $HOME/agent.sh
 elif [ "${WPT_UPDATE_BROWSERS,,}" == 'y' ]; then
-    echo 'until sudo apt -y update' >> ~/agent.sh
-    echo 'do' >> ~/agent.sh
-    echo '    sleep 1' >> ~/agent.sh
-    echo 'done' >> ~/agent.sh
+    echo 'until sudo apt -y update' >> $HOME/agent.sh
+    echo 'do' >> $HOME/agent.sh
+    echo '    sleep 1' >> $HOME/agent.sh
+    echo 'done' >> $HOME/agent.sh
     if [ "${LINUX_DISTRO}" == 'Raspbian' ]; then
-        echo 'until sudo DEBIAN_FRONTEND=noninteractive apt -yq --only-upgrade install chromium-browser firefox-esr' >> ~/agent.sh
+        echo 'until sudo DEBIAN_FRONTEND=noninteractive apt -yq --only-upgrade install chromium-browser firefox-esr' >> $HOME/agent.sh
     else
-        echo 'until sudo DEBIAN_FRONTEND=noninteractive apt -yq --only-upgrade -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confold" install google-chrome-stable google-chrome-beta google-chrome-unstable firefox firefox-trunk firefox-esr firefox-geckodriver brave-browser brave-browser-beta brave-browser-dev brave-browser-nightly opera-stable opera-beta opera-developer vivaldi-stable' >> ~/agent.sh
+        echo 'until sudo DEBIAN_FRONTEND=noninteractive apt -yq --only-upgrade -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confold" install google-chrome-stable google-chrome-beta google-chrome-unstable firefox firefox-trunk firefox-esr firefox-geckodriver brave-browser brave-browser-beta brave-browser-dev brave-browser-nightly opera-stable opera-beta opera-developer vivaldi-stable' >> $HOME/agent.sh
     fi
-    echo 'do' >> ~/agent.sh
-    echo '    sleep 1' >> ~/agent.sh
-    echo 'done' >> ~/agent.sh
+    echo 'do' >> $HOME/agent.sh
+    echo '    sleep 1' >> $HOME/agent.sh
+    echo 'done' >> $HOME/agent.sh
 fi
 
 # Lighthouse Update
 if [ "${WPT_UPDATE_AGENT,,}" == 'y' ]; then
-    echo 'sudo npm i -g lighthouse' >> ~/agent.sh
+    echo 'sudo npm i -g lighthouse' >> $HOME/agent.sh
 fi
 
 if [ "${LINUX_DISTRO}" == 'Raspbian' ]; then
-    echo 'sudo fstrim -v /' >> ~/agent.sh
+    echo 'sudo fstrim -v /' >> $HOME/agent.sh
 fi
 if [ "${AGENT_MODE,,}" == 'ios' ]; then
-    echo 'sudo usbmuxd' >> ~/agent.sh
+    echo 'sudo usbmuxd' >> $HOME/agent.sh
 fi
 
 # Dummy X display
 if [ "${AGENT_MODE,,}" == 'desktop' ]; then
-    echo 'export DISPLAY=:1' >> ~/agent.sh
-    echo 'Xorg -noreset +extension GLX +extension RANDR +extension RENDER -logfile /dev/null -config ./misc/xorg.conf :1 &' >> ~/agent.sh
+    echo 'export DISPLAY=:1' >> $HOME/agent.sh
+    echo 'Xorg -noreset +extension GLX +extension RANDR +extension RENDER -logfile /dev/null -config ./misc/xorg.conf :1 &' >> $HOME/agent.sh
 fi
 
-echo 'for i in `seq 1 24`' >> ~/agent.sh
-echo 'do' >> ~/agent.sh
+echo 'for i in `seq 1 24`' >> $HOME/agent.sh
+echo 'do' >> $HOME/agent.sh
 
 if [ "${WPT_UPDATE_AGENT,,}" == 'y' ]; then
-    echo "    git pull origin $WPT_BRANCH" >> ~/agent.sh
+    echo "    git pull origin $WPT_BRANCH" >> $HOME/agent.sh
 fi
 
 # Agent invocation (depending on config)
 if [ "${AGENT_MODE,,}" == 'android' ]; then
-    echo "    python3 wptagent.py -vvvv $NAME_OPTION --location $WPT_LOCATION $KEY_OPTION --server \"https://$WPT_SERVER/work/\" --android --exit 60 --alive /tmp/wptagent" >> ~/agent.sh
-    echo "#    python3 wptagent.py -vvvv $NAME_OPTION --location $WPT_LOCATION $KEY_OPTION --server \"https://$WPT_SERVER/work/\" --android --vpntether2 eth0,192.168.0.1 --shaper netem,eth0 --exit 60 --alive /tmp/wptagent" >> ~/agent.sh
+    echo "    python3 wptagent.py -vvvv $NAME_OPTION --location $WPT_LOCATION $KEY_OPTION --server \"https://$WPT_SERVER/work/\" --android --exit 60 --alive /tmp/wptagent" >> $HOME/agent.sh
+    echo "#    python3 wptagent.py -vvvv $NAME_OPTION --location $WPT_LOCATION $KEY_OPTION --server \"https://$WPT_SERVER/work/\" --android --vpntether2 eth0,192.168.0.1 --shaper netem,eth0 --exit 60 --alive /tmp/wptagent" >> $HOME/agent.sh
 fi
 if [ "${AGENT_MODE,,}" == 'ios' ]; then
-    echo "    python3 wptagent.py -vvvv $NAME_OPTION --location $WPT_LOCATION $KEY_OPTION --server \"https://$WPT_SERVER/work/\" --iOS --exit 60 --alive /tmp/wptagent" >> ~/agent.sh
+    echo "    python3 wptagent.py -vvvv $NAME_OPTION --location $WPT_LOCATION $KEY_OPTION --server \"https://$WPT_SERVER/work/\" --iOS --exit 60 --alive /tmp/wptagent" >> $HOME/agent.sh
 fi
 if [ "${AGENT_MODE,,}" == 'desktop' ]; then
     if [ "${WPT_CLOUD,,}" == 'gce' ]; then
-        echo "    python3 wptagent.py -vvvv --gce --exit 60 --alive /tmp/wptagent" >> ~/agent.sh
+        echo "    python3 wptagent.py -vvvv --gce --exit 60 --alive /tmp/wptagent" >> $HOME/agent.sh
     elif [ "${WPT_CLOUD,,}" == 'ec2' ]; then
-        echo "    python3 wptagent.py -vvvv --ec2 --exit 60 --alive /tmp/wptagent" >> ~/agent.sh
+        echo "    python3 wptagent.py -vvvv --ec2 --exit 60 --alive /tmp/wptagent" >> $HOME/agent.sh
     else
-        echo "    python3 wptagent.py -vvvv --server \"https://$WPT_SERVER/work/\" --location $WPT_LOCATION $KEY_OPTION --exit 60 --alive /tmp/wptagent" >> ~/agent.sh
+        echo "    python3 wptagent.py -vvvv --server \"https://$WPT_SERVER/work/\" --location $WPT_LOCATION $KEY_OPTION --exit 60 --alive /tmp/wptagent" >> $HOME/agent.sh
     fi
 fi
 
-echo '    echo "Exited, restarting"' >> ~/agent.sh
-echo '    sleep 10' >> ~/agent.sh
-echo 'done' >> ~/agent.sh
+echo '    echo "Exited, restarting"' >> $HOME/agent.sh
+echo '    sleep 10' >> $HOME/agent.sh
+echo 'done' >> $HOME/agent.sh
 # OS Update (again, just before reboot)
 if [ "${WPT_UPDATE_OS,,}" == 'y' ]; then
-    echo 'until sudo apt -y update' >> ~/agent.sh
-    echo 'do' >> ~/agent.sh
-    echo '    sleep 1' >> ~/agent.sh
-    echo 'done' >> ~/agent.sh
-    echo 'echo "Updating OS"' >> ~/agent.sh
-    echo 'until sudo DEBIAN_FRONTEND=noninteractive apt -yq -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confold" dist-upgrade' >> ~/agent.sh
-    echo 'do' >> ~/agent.sh
-    echo '    sudo apt -f install' >> ~/agent.sh
-    echo '    sleep 1' >> ~/agent.sh
-    echo 'done' >> ~/agent.sh
+    echo 'until sudo apt -y update' >> $HOME/agent.sh
+    echo 'do' >> $HOME/agent.sh
+    echo '    sleep 1' >> $HOME/agent.sh
+    echo 'done' >> $HOME/agent.sh
+    echo 'echo "Updating OS"' >> $HOME/agent.sh
+    echo 'until sudo DEBIAN_FRONTEND=noninteractive apt -yq -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confold" dist-upgrade' >> $HOME/agent.sh
+    echo 'do' >> $HOME/agent.sh
+    echo '    sudo apt -f install' >> $HOME/agent.sh
+    echo '    sleep 1' >> $HOME/agent.sh
+    echo 'done' >> $HOME/agent.sh
 fi
-echo 'sudo apt -y autoremove' >> ~/agent.sh
-echo 'sudo apt clean' >> ~/agent.sh
+echo 'sudo apt -y autoremove' >> $HOME/agent.sh
+echo 'sudo apt clean' >> $HOME/agent.sh
 if [ "${AGENT_MODE,,}" == 'android' ]; then
-    echo 'adb reboot' >> ~/agent.sh
+    echo 'adb reboot' >> $HOME/agent.sh
 fi
 if [ "${AGENT_MODE,,}" == 'ios' ]; then
-    echo 'idevicediagnostics restart' >> ~/agent.sh
+    echo 'idevicediagnostics restart' >> $HOME/agent.sh
 fi
-echo 'sudo reboot' >> ~/agent.sh
+echo 'sudo reboot' >> $HOME/agent.sh
 
 #end of non-interactive block
 fi
 
-chmod +x ~/agent.sh
+chmod +x $HOME/agent.sh
 
 #**************************************************************************************************
 # Finish
@@ -744,7 +745,7 @@ echo "$(crontab -l)"
 # Description=Agent Startup Service
 
 # [Service]
-# ExecStart=/root/startup.sh
+# ExecStart=$HOME/startup.sh
 # Type=simple
 # Restart=on-failure
 
