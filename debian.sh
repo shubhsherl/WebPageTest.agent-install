@@ -32,21 +32,23 @@ set -eu
 : ${WPT_UPDATE_OS_NOW:='y'}
 : ${WPT_UPDATE_AGENT:='y'}
 : ${WPT_UPDATE_BROWSERS:='y'}
+: ${WPT_VB:='y'}
 : ${WPT_CHROME:='y'}
-: ${WPT_FIREFOX:='y'}
-: ${WPT_BRAVE:='y'}
-: ${WPT_EDGE:='y'}
-: ${WPT_EPIPHANY:='y'}
+: ${WPT_FIREFOX:='n'}
+: ${WPT_BRAVE:='n'}
+: ${WPT_EDGE:='n'}
+: ${WPT_EPIPHANY:='n'}
 : ${WPT_OPERA:='n'}
 : ${WPT_VIVALDI:='n'}
 : ${LINUX_DISTRO:=`(lsb_release -is)`}
 : ${WPT_DEVICE_NAME:='Device'}
 : ${WPT_INTERACTIVE:='n'}
-if [ "${WPT_INTERACTIVE,,}" == 'y' ]; then
-    : ${WPT_BRANCH:='master'}
-else
-    : ${WPT_BRANCH:='release'}
-fi
+: ${WPT_BRANCH:='vst'}
+# if [ "${WPT_INTERACTIVE,,}" == 'y' ]; then
+#     : ${WPT_BRANCH:='master'}
+# else
+#     : ${WPT_BRANCH:='release'}
+# fi
 
 #**************************************************************************************************
 # Prompt for options
@@ -120,12 +122,12 @@ fi
 cd ~
 rm -rf wptagent
 if [ "${WPT_INTERACTIVE,,}" == 'y' ]; then
-    until git clone --branch=$WPT_BRANCH https://github.com/WPO-Foundation/wptagent.git
+    until git clone --branch=$WPT_BRANCH https://github.com/shubhsherl/wptagent.git
     do
         sleep 1
     done
 else
-    until git clone --depth 1 --branch=$WPT_BRANCH https://github.com/WPO-Foundation/wptagent.git
+    until git clone --depth 1 --branch=$WPT_BRANCH https://github.com/shubhsherl/wptagent.git
     do
         sleep 1
     done
@@ -327,6 +329,20 @@ if [ "${AGENT_MODE,,}" == 'desktop' ]; then
                 sleep 1
             done
             until sudo apt -yq install google-chrome-stable google-chrome-beta google-chrome-unstable
+            do
+                sleep 1
+            done
+        fi
+
+        if [ "${WPT_VB,,}" == 'y' ]; then
+            vbVersionFile="viasat-browser-stable_120.0.6099.19902-1_amd64.deb"
+            vbExeUrl="https://s3.amazonaws.com/stage.browser.viasat.com/prism/$vbVersionFile"  # Update URL for Linux
+            vbExePath="/tmp/$vbVersionFile"
+            until wget -O $vbExePath $vbExeUrl
+            do
+                sleep 1
+            done
+            until sudo dpkg -i $vbExePath
             do
                 sleep 1
             done
@@ -574,6 +590,11 @@ if [ "${WPT_UPDATE_BROWSERS,,}" == 'y' ]; then
         if [ "${WPT_CHROME,,}" == 'y' ]; then
             echo 'wget -q -O - https://dl.google.com/linux/linux_signing_key.pub | sudo apt-key add -' >> ~/agent.sh
         fi
+
+        # if [ "${WPT_VB,,}" == 'y' ]; then
+        #     echo 'sudo add-apt-repository -y ppa:ubuntu-mozilla-daily/ppa' >> ~/agent.sh
+        #     echo 'sudo add-apt-repository -y ppa:mozillateam/ppa' >> ~/agent.sh
+        # fi
 
         if [ "${WPT_FIREFOX,,}" == 'y' ]; then
             echo 'sudo add-apt-repository -y ppa:ubuntu-mozilla-daily/ppa' >> ~/agent.sh
