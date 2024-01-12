@@ -739,4 +739,5 @@ sudo systemctl set-default multi-user
 fi
 
 echo
-echo "Install is complete.  Please reboot the system to start testing (sudo reboot)"
+echo "Install is complete.  Rebooting the system to start the agent (sudo reboot)"
+sudo reboot
