@@ -133,6 +133,7 @@ else
         sleep 1
     done
 fi
+git config --global --add safe.directory $HOME/wptagent
 
 #**************************************************************************************************
 # OS Packages
@@ -567,13 +568,13 @@ if [ "${WPT_INTERACTIVE,,}" == 'y' ]; then
 
 # Agent invocation (depending on config)
 if [ "${AGENT_MODE,,}" == 'android' ]; then
-    echo "python3 $HOME/wptagent/wptagent.py -vvvv $NAME_OPTION --location $WPT_LOCATION $KEY_OPTION --server \"https://$WPT_SERVER/work/\" --android" >> $HOME/agent.sh
+    echo "python3 $HOME/wptagent/wptagent.py -vvvv $NAME_OPTION --location $WPT_LOCATION $KEY_OPTION --server \"http://$WPT_SERVER/work/\" --android" >> $HOME/agent.sh
 fi
 if [ "${AGENT_MODE,,}" == 'ios' ]; then
-    echo "python3 $HOME/wptagent/wptagent.py -vvvv $NAME_OPTION --location $WPT_LOCATION $KEY_OPTION --server \"https://$WPT_SERVER/work/\" --iOS" >> $HOME/agent.sh
+    echo "python3 $HOME/wptagent/wptagent.py -vvvv $NAME_OPTION --location $WPT_LOCATION $KEY_OPTION --server \"http://$WPT_SERVER/work/\" --iOS" >> $HOME/agent.sh
 fi
 if [ "${AGENT_MODE,,}" == 'desktop' ]; then
-    echo "python3 $HOME/wptagent/wptagent.py -vvvv --server \"https://$WPT_SERVER/work/\" --location $WPT_LOCATION $KEY_OPTION" >> $HOME/agent.sh
+    echo "python3 $HOME/wptagent/wptagent.py -vvvv --server \"http://$WPT_SERVER/work/\" --location $WPT_LOCATION $KEY_OPTION" >> $HOME/agent.sh
 fi
 
 else
@@ -677,11 +678,11 @@ fi
 
 # Agent invocation (depending on config)
 if [ "${AGENT_MODE,,}" == 'android' ]; then
-    echo "    python3 wptagent.py -vvvv $NAME_OPTION --location $WPT_LOCATION $KEY_OPTION --server \"https://$WPT_SERVER/work/\" --android --exit 60 --alive /tmp/wptagent" >> $HOME/agent.sh
-    echo "#    python3 wptagent.py -vvvv $NAME_OPTION --location $WPT_LOCATION $KEY_OPTION --server \"https://$WPT_SERVER/work/\" --android --vpntether2 eth0,192.168.0.1 --shaper netem,eth0 --exit 60 --alive /tmp/wptagent" >> $HOME/agent.sh
+    echo "    python3 wptagent.py -vvvv $NAME_OPTION --location $WPT_LOCATION $KEY_OPTION --server \"http://$WPT_SERVER/work/\" --android --exit 60 --alive /tmp/wptagent" >> $HOME/agent.sh
+    echo "#    python3 wptagent.py -vvvv $NAME_OPTION --location $WPT_LOCATION $KEY_OPTION --server \"http://$WPT_SERVER/work/\" --android --vpntether2 eth0,192.168.0.1 --shaper netem,eth0 --exit 60 --alive /tmp/wptagent" >> $HOME/agent.sh
 fi
 if [ "${AGENT_MODE,,}" == 'ios' ]; then
-    echo "    python3 wptagent.py -vvvv $NAME_OPTION --location $WPT_LOCATION $KEY_OPTION --server \"https://$WPT_SERVER/work/\" --iOS --exit 60 --alive /tmp/wptagent" >> $HOME/agent.sh
+    echo "    python3 wptagent.py -vvvv $NAME_OPTION --location $WPT_LOCATION $KEY_OPTION --server \"http://$WPT_SERVER/work/\" --iOS --exit 60 --alive /tmp/wptagent" >> $HOME/agent.sh
 fi
 if [ "${AGENT_MODE,,}" == 'desktop' ]; then
     if [ "${WPT_CLOUD,,}" == 'gce' ]; then
@@ -689,7 +690,7 @@ if [ "${AGENT_MODE,,}" == 'desktop' ]; then
     elif [ "${WPT_CLOUD,,}" == 'ec2' ]; then
         echo "    python3 wptagent.py -vvvv --ec2 --exit 60 --alive /tmp/wptagent" >> $HOME/agent.sh
     else
-        echo "    python3 wptagent.py -vvvv --server \"https://$WPT_SERVER/work/\" --location $WPT_LOCATION $KEY_OPTION --exit 60 --alive /tmp/wptagent" >> $HOME/agent.sh
+        echo "    python3 wptagent.py -vvvv --server \"http://$WPT_SERVER/work/\" --location $WPT_LOCATION $KEY_OPTION --exit 60 --alive /tmp/wptagent" >> $HOME/agent.sh
     fi
 fi
 
