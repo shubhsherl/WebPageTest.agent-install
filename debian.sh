@@ -509,12 +509,12 @@ echo '#!/bin/sh' > ~/startup.sh
 echo "PATH=$PWD/bin:$PWD/.local/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/games:/usr/local/games:/snap/bin" >> ~/startup.sh
 echo 'sudo DEBIAN_FRONTEND=noninteractive apt update -yq' >> ~/startup.sh
 echo 'sudo DEBIAN_FRONTEND=noninteractive apt install ca-certificates -yq' >> ~/startup.sh
-echo 'cd ~' >> ~/startup.sh
-echo 'if [ -e first.run ]' >> ~/startup.sh
+# echo 'cd ~' >> ~/startup.sh
+echo 'if [ -e /root/first.run ]' >> ~/startup.sh
 echo 'then' >> ~/startup.sh
-echo '    screen -dmS init ~/firstrun.sh' >> ~/startup.sh
+echo '    screen -dmS init /root/firstrun.sh' >> ~/startup.sh
 echo 'else' >> ~/startup.sh
-echo '    screen -dmS agent ~/agent.sh' >> ~/startup.sh
+echo '    screen -dmS agent /root/agent.sh' >> ~/startup.sh
 echo 'fi' >> ~/startup.sh
 echo 'sudo service watchdog restart' >> ~/startup.sh
 chmod +x ~/startup.sh
