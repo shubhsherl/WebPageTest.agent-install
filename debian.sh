@@ -730,16 +730,31 @@ chmod +x ~/agent.sh
 if [ "${WPT_INTERACTIVE,,}" == 'n' ]; then
 
 # Overwrite the existing user crontab
-echo "Setting up crontab..."
-echo "@reboot ${PWD}/startup.sh >> ${PWD}/logfile.log 2>&1" | crontab -
+# echo "Setting up crontab..."
+# echo "@reboot ${PWD}/startup.sh >> ${PWD}/logfile.log 2>&1" | crontab -
 
-sudo systemctl restart cron
+# sudo systemctl restart cron
 
-echo "List crontab..."
-echo "$(crontab -l)"
+# echo "List crontab..."
+# echo "$(crontab -l)"
 
-# echo "Setting up rc.local..."
-# echo "${PWD}/startup.sh" >> /etc/rc.local
+echo "Setting up systemd for startup script..."
+cat <<'EOF' >/etc/systemd/system/agent_startup.service
+[Unit]
+Description=Agent Startup Service
+
+[Service]
+ExecStart=/root/startup.sh
+Type=simple
+Restart=on-failure
+
+[Install]
+WantedBy=multi-user.target
+EOF
+
+sudo systemctl daemon-reload
+sudo systemctl enable agent_startup.service
+sudo systemctl start agent_startup.service
 
 # Allow X to be started within the screen session
 sudo sed -i 's/allowed_users=console/allowed_users=anybody/g' /etc/X11/Xwrapper.config || true
