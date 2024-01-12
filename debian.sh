@@ -28,10 +28,10 @@ set -eu
 : ${WPT_KEY:=''}
 : ${WPT_CLOUD:=''}
 : ${AGENT_MODE:='desktop'}
-: ${WPT_UPDATE_OS:='y'}
-: ${WPT_UPDATE_OS_NOW:='y'}
+: ${WPT_UPDATE_OS:='n'}
+: ${WPT_UPDATE_OS_NOW:='n'}
 : ${WPT_UPDATE_AGENT:='y'}
-: ${WPT_UPDATE_BROWSERS:='y'}
+: ${WPT_UPDATE_BROWSERS:='n'}
 : ${WPT_VB:='y'}
 : ${WPT_CHROME:='y'}
 : ${WPT_FIREFOX:='n'}
