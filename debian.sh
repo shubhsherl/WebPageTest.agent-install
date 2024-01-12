@@ -43,7 +43,7 @@ set -eu
 : ${LINUX_DISTRO:=`(lsb_release -is)`}
 : ${WPT_DEVICE_NAME:='Device'}
 : ${WPT_INTERACTIVE:='n'}
-: ${WPT_BRANCH:='vst'}
+: ${WPT_BRANCH:='vst_lin'}
 # if [ "${WPT_INTERACTIVE,,}" == 'y' ]; then
 #     : ${WPT_BRANCH:='master'}
 # else
