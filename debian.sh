@@ -732,12 +732,12 @@ if [ "${WPT_INTERACTIVE,,}" == 'n' ]; then
 
 # Overwrite the existing user crontab
 echo "Setting up crontab..."
-echo "@reboot ${PWD}/startup.sh >> ${PWD}/logfile.log 2>&1" | crontab -
+echo "@reboot ${PWD}/startup.sh >> ${PWD}/logfile.log 2>&1" | crontab -u ubuntu
 
 sudo systemctl restart cron
 
 echo "List crontab..."
-echo "$(crontab -l)"
+echo "$(crontab -u ubuntu -l)"
 
 # echo "Setting up systemd for startup script..."
 # cat <<'EOF' >/etc/systemd/system/agent_startup.service
