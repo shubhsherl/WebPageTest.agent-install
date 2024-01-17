@@ -742,6 +742,24 @@ sudo systemctl restart cron
 echo "List crontab..."
 echo "$(crontab -u ubuntu -l)"
 
+# echo "Setting up systemd for startup script..."
+# cat <<'EOF' >/etc/systemd/system/agent_startup.service
+# [Unit]
+# Description=Agent Startup Service
+
+# [Service]
+# ExecStart=$HOME/startup.sh
+# Type=simple
+# Restart=on-failure
+
+# [Install]
+# WantedBy=multi-user.target
+# EOF
+
+# sudo systemctl daemon-reload
+# sudo systemctl enable agent_startup.service
+# sudo systemctl start agent_startup.service
+
 # Allow X to be started within the screen session
 sudo sed -i 's/allowed_users=console/allowed_users=anybody/g' /etc/X11/Xwrapper.config || true
 sudo systemctl set-default multi-user
@@ -749,8 +767,5 @@ sudo systemctl set-default multi-user
 fi
 
 echo
-# echo "Install is complete.  Rebooting the system to start the agent (sudo reboot)"
-# sudo reboot
-echo "Install is complete. Trying to run startup.sh after 10s"
-sleep 10
-${PWD}/startup.sh >> ${PWD}/logfile.log 2>&1
+echo "Install is complete.  Rebooting the system to start the agent (sudo reboot)"
+sudo reboot
