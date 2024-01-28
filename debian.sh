@@ -566,7 +566,7 @@ if [ $WPT_DEVICE_NAME != '' ]; then
 fi
 echo '#!/bin/sh' > $HOME/agent.sh
 
-echo 'sudo renice -10 $$' > $HOME/agent.sh
+echo 'sudo renice -18 $$' > $HOME/agent.sh
 
 if [ "${WPT_INTERACTIVE,,}" == 'y' ]; then
 
