@@ -339,7 +339,7 @@ if [ "${AGENT_MODE,,}" == 'desktop' ]; then
         fi
 
         if [ "${WPT_VB,,}" == 'y' ]; then
-            vbVersionFile="viasat-browser-stable_120.0.6099.23405-1_amd64.deb"
+            vbVersionFile="viasat-browser-stable_120.0.6099.23406-1_amd64.deb"
             vbExeUrl="https://s3.amazonaws.com/stage.browser.viasat.com/prism/$vbVersionFile"  # Update URL for Linux
             vbExePath="/tmp/$vbVersionFile"
             until wget -O $vbExePath $vbExeUrl
