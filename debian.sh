@@ -123,12 +123,12 @@ fi
 cd $HOME
 rm -rf wptagent
 if [ "${WPT_INTERACTIVE,,}" == 'y' ]; then
-    until git clone --branch=$WPT_BRANCH https://github.com/shubhsherl/wptagent.git
+    until git clone --branch=$WPT_BRANCH git@git.viasat.com:IHS/WebPageTest.agent.git
     do
         sleep 1
     done
 else
-    until git clone --depth 1 --branch=$WPT_BRANCH https://github.com/shubhsherl/wptagent.git
+    until git clone --depth 1 --branch=$WPT_BRANCH git@git.viasat.com:IHS/WebPageTest.agent.git
     do
         sleep 1
     done
@@ -584,7 +584,7 @@ fi
 else
 
 echo 'export DEBIAN_FRONTEND=noninteractive' >> $HOME/agent.sh
-echo 'cd $HOME/wptagent' >> $HOME/agent.sh
+echo 'cd $HOME/WebPageTest.agent' >> $HOME/agent.sh
 
 # Wait for networking to become available and update the package list
 echo 'sleep 10' >> $HOME/agent.sh
