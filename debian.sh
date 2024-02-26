@@ -121,7 +121,7 @@ fi
 #**************************************************************************************************
 
 cd $HOME
-rm -rf wptagent
+rm -rf WebPageTest.agent
 if [ "${WPT_INTERACTIVE,,}" == 'y' ]; then
     until git clone --branch=$WPT_BRANCH git@git.viasat.com:IHS/WebPageTest.agent.git
     do
@@ -134,8 +134,8 @@ else
     done
 fi
 
-# git config --global --add safe.directory /home/ubuntu/wptagent
-sudo chown -R ubuntu /home/ubuntu/wptagent
+# git config --global --add safe.directory /home/ubuntu/WebPageTest.agent
+sudo chown -R ubuntu /home/ubuntu/WebPageTest.agent
 
 #**************************************************************************************************
 # OS Packages
@@ -499,7 +499,7 @@ fi
 
 # configure watchdog
 cd $HOME
-echo "test-binary = $PWD/wptagent/alive3.sh" | sudo tee -a /etc/watchdog.conf
+echo "test-binary = $PWD/WebPageTest.agent/alive3.sh" | sudo tee -a /etc/watchdog.conf
 
 fi
 
@@ -572,13 +572,13 @@ if [ "${WPT_INTERACTIVE,,}" == 'y' ]; then
 
 # Agent invocation (depending on config)
 if [ "${AGENT_MODE,,}" == 'android' ]; then
-    echo "python3 $HOME/wptagent/wptagent.py -vvvv $NAME_OPTION --location $WPT_LOCATION $KEY_OPTION --server \"http://$WPT_SERVER/work/\" --android" >> $HOME/agent.sh
+    echo "python3 $HOME/WebPageTest.agent/wptagent.py -vvvv $NAME_OPTION --location $WPT_LOCATION $KEY_OPTION --server \"http://$WPT_SERVER/work/\" --android" >> $HOME/agent.sh
 fi
 if [ "${AGENT_MODE,,}" == 'ios' ]; then
-    echo "python3 $HOME/wptagent/wptagent.py -vvvv $NAME_OPTION --location $WPT_LOCATION $KEY_OPTION --server \"http://$WPT_SERVER/work/\" --iOS" >> $HOME/agent.sh
+    echo "python3 $HOME/WebPageTest.agent/wptagent.py -vvvv $NAME_OPTION --location $WPT_LOCATION $KEY_OPTION --server \"http://$WPT_SERVER/work/\" --iOS" >> $HOME/agent.sh
 fi
 if [ "${AGENT_MODE,,}" == 'desktop' ]; then
-    echo "python3 $HOME/wptagent/wptagent.py -vvvv --server \"http://$WPT_SERVER/work/\" --location $WPT_LOCATION $KEY_OPTION" >> $HOME/agent.sh
+    echo "python3 $HOME/WebPageTest.agent/wptagent.py -vvvv --server \"http://$WPT_SERVER/work/\" --location $WPT_LOCATION $KEY_OPTION" >> $HOME/agent.sh
 fi
 
 else
