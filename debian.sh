@@ -135,7 +135,7 @@ else
 fi
 
 # git config --global --add safe.directory /home/ubuntu/WebPageTest.agent
-sudo chown -R ubuntu /home/ubuntu/
+sudo chown -R ubuntu /home/ubuntu/WebPageTest.agent
 
 #**************************************************************************************************
 # OS Packages
