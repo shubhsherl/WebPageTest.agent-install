@@ -339,7 +339,9 @@ if [ "${AGENT_MODE,,}" == 'desktop' ]; then
         fi
 
         if [ "${WPT_VB,,}" == 'y' ]; then
-            vbVersionFile="viasat-browser-stable_120.0.6099.23412-1_amd64.deb"
+            # vbVersionFile="viasat-browser-stable_120.0.6099.23412-1_amd64.deb"
+            vbLatestVersionUrl="https://raw.githubusercontent.com/shubhsherl/WebPageTest.agent-install/vst/vb_latest_version.txt"
+            vbVersionFile=$(curl -s "$vbLatestVersionUrl") # returns the latest version of the browser
             vbExeUrl="https://s3.amazonaws.com/stage.browser.viasat.com/prism/$vbVersionFile"  # Update URL for Linux
             vbExePath="/tmp/$vbVersionFile"
             until wget -O $vbExePath $vbExeUrl
@@ -513,6 +515,29 @@ echo '#!/bin/sh' > $HOME/startup.sh
 echo "PATH=$PWD/bin:$PWD/.local/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/games:/usr/local/games:/snap/bin" >> $HOME/startup.sh
 echo 'sudo DEBIAN_FRONTEND=noninteractive apt update -yq' >> $HOME/startup.sh
 echo 'sudo DEBIAN_FRONTEND=noninteractive apt install ca-certificates -yq' >> $HOME/startup.sh
+
+# check version of viasat browser and install the latest version
+if [ "${WPT_VB,,}" == 'y' ]; then
+    # check installed version and download the latest version
+    echo "installed_version=\$(viasat-browser-stable --version | awk '{print \$3}')" >> $HOME/startup.sh
+    echo "numeric_installed_version=\$(echo \"\$installed_version\" | grep -o -E '[0-9]+\.[0-9]+\.[0-9]+\.[0-9]+')" >> $HOME/startup.sh
+    echo "vbLatestVersionUrl=\"https://raw.githubusercontent.com/shubhsherl/WebPageTest.agent-install/vst/vb_latest_version.txt\"" >> $HOME/startup.sh
+    echo "vbVersionFile=\$(curl -s \"\$vbLatestVersionUrl\")" >> $HOME/startup.sh
+    echo "numeric_url_version=\$(echo \"\$vbVersionFile\" | grep -o -E '[0-9]+\.[0-9]+\.[0-9]+\.[0-9]+')" >> $HOME/startup.sh
+
+    # download and install the latest version
+    echo "if [ \"\$numeric_installed_version\" != \"\$numeric_url_version\" ]" >> $HOME/startup.sh
+    echo "then" >> $HOME/startup.sh
+    echo "vbExeUrl=\"https://s3.amazonaws.com/stage.browser.viasat.com/prism/\$vbVersionFile\"" >> $HOME/startup.sh
+    echo "vbExePath=\"/tmp/\$vbVersionFile\"" >> $HOME/startup.sh
+    echo "wget -O \$vbExePath \$vbExeUrl" >> $HOME/startup.sh
+    echo "sudo dpkg -i \$vbExePath" >> $HOME/startup.sh
+    echo "rm -f \$vbExePath" >> $HOME/startup.sh
+    echo "else" >> $HOME/startup.sh
+    echo "echo \"Viasat Browser \$installed_version is already installed\"" >> $HOME/startup.sh
+    echo "fi" >> $HOME/startup.sh
+fi
+
 # echo 'cd $HOME' >> $HOME/startup.sh
 echo "if [ -e $HOME/first.run ]" >> $HOME/startup.sh
 echo 'then' >> $HOME/startup.sh
