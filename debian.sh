@@ -61,14 +61,13 @@ echo "Installing and configuring WebPageTest agent..."
 HOME="/home/ubuntu"
 
 if [ "${GIT_VS_ACCESS_TOKEN,,}" == 'NA' ]; then
-    # echo and return
     echo "Please provide the access token (GIT_VS_ACCESS_TOKEN) for the git.viasat.com"
     echo "Exiting the installation..."
 fi
 
 # GIT_VS_ACCESS_TOKEN gives access to public repo of git.viasat.com within the VPN 
 # NOTE: Using token from ssingh account created on 13 Mar 2024 (this will expire on 12 Mar 2025)
-VB_VERSION_CHECK_URL="https://${GIT_VS_ACCESS_TOKEN}:x-oauth-basic@raw.git.viasat.com/IHS/WebPageTest.agent-install/vst/vb_latest_version.txt"
+VB_VERSION_CHECK_URL="https://$GIT_VS_ACCESS_TOKEN:x-oauth-basic@raw.git.viasat.com/IHS/WebPageTest.agent-install/vst/vb_latest_version.txt"
 
 if [ "${WPT_INTERACTIVE,,}" == 'n' ]; then
     while [[ $DISABLE_IPV6 == '' ]]
@@ -352,6 +351,7 @@ if [ "${AGENT_MODE,,}" == 'desktop' ]; then
         if [ "${WPT_VB,,}" == 'y' ]; then
             # vbVersionFile="viasat-browser-stable_120.0.6099.23412-1_amd64.deb"
             vbVersionFile=$(curl -s "$VB_VERSION_CHECK_URL") # returns the latest version of the browser
+            echo $VB_VERSION_CHECK_URL
             vbExeUrl="https://s3.amazonaws.com/stage.browser.viasat.com/prism/$vbVersionFile"  # Update URL for Linux
             vbExePath="/tmp/$vbVersionFile"
             until wget -O $vbExePath $vbExeUrl
