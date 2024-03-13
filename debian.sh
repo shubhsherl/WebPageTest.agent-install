@@ -63,6 +63,7 @@ HOME="/home/ubuntu"
 if [ "${GIT_VS_ACCESS_TOKEN,,}" == 'NA' ]; then
     echo "Please provide the access token (GIT_VS_ACCESS_TOKEN) for the git.viasat.com"
     echo "Exiting the installation..."
+    exit 1
 fi
 
 # GIT_VS_ACCESS_TOKEN gives access to public repo of git.viasat.com within the VPN 
