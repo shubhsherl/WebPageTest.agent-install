@@ -44,7 +44,7 @@ set -eu
 : ${WPT_DEVICE_NAME:='Device'}
 : ${WPT_INTERACTIVE:='n'}
 : ${WPT_BRANCH:='vst_lin'}
-# : ${GIT_VS_ACCESS_TOKEN:='NA'}
+: ${GIT_VS_ACCESS_TOKEN:='NA'}
 # if [ "${WPT_INTERACTIVE,,}" == 'y' ]; then
 #     : ${WPT_BRANCH:='master'}
 # else
@@ -60,15 +60,14 @@ echo "Installing and configuring WebPageTest agent..."
 
 HOME="/home/ubuntu"
 
-# if [ "${GIT_VS_ACCESS_TOKEN,,}" == 'NA' ]; then
-#     echo "Please provide the access token (GIT_VS_ACCESS_TOKEN) for the git.viasat.com"
-#     echo "Exiting the installation..."
-#     exit 1
-# fi
+if [ "${GIT_VS_ACCESS_TOKEN,,}" == 'NA' ]; then
+    echo "Please provide the access token (GIT_VS_ACCESS_TOKEN) for the git.viasat.com"
+    echo "Exiting the installation..."
+    exit 1
+fi
 
 # GIT_VS_ACCESS_TOKEN gives access to public repo of git.viasat.com within the VPN 
 # NOTE: Using token from ssingh account created on 13 Mar 2024 (this will expire on 12 Mar 2025)
-GIT_VS_ACCESS_TOKEN="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"
 VB_VERSION_CHECK_URL="https://$GIT_VS_ACCESS_TOKEN:x-oauth-basic@raw.git.viasat.com/IHS/WebPageTest.agent-install/vst/vb_latest_version.txt"
 
 if [ "${WPT_INTERACTIVE,,}" == 'n' ]; then
