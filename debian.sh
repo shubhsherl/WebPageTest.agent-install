@@ -30,7 +30,7 @@ set -eu
 : ${AGENT_MODE:='desktop'}
 : ${WPT_UPDATE_OS:='n'}
 : ${WPT_UPDATE_OS_NOW:='n'}
-: ${WPT_UPDATE_AGENT:='y'}
+: ${WPT_UPDATE_AGENT:='n'}
 : ${WPT_UPDATE_BROWSERS:='n'}
 : ${WPT_VB:='y'}
 : ${WPT_CHROME:='y'}
