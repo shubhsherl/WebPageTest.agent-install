@@ -30,7 +30,7 @@ set -eu
 : ${AGENT_MODE:='desktop'}
 : ${WPT_UPDATE_OS:='n'}
 : ${WPT_UPDATE_OS_NOW:='n'}
-: ${WPT_UPDATE_AGENT:='n'}
+: ${WPT_UPDATE_AGENT:='y'}
 : ${WPT_UPDATE_BROWSERS:='n'}
 : ${WPT_VB:='y'}
 : ${WPT_CHROME:='y'}
@@ -44,6 +44,7 @@ set -eu
 : ${WPT_DEVICE_NAME:='Device'}
 : ${WPT_INTERACTIVE:='n'}
 : ${WPT_BRANCH:='vst_lin'}
+: ${GIT_VS_ACCESS_TOKEN:='NA'}
 # if [ "${WPT_INTERACTIVE,,}" == 'y' ]; then
 #     : ${WPT_BRANCH:='master'}
 # else
@@ -58,6 +59,16 @@ set -eu
 echo "Installing and configuring WebPageTest agent..."
 
 HOME="/home/ubuntu"
+
+if [ "${GIT_VS_ACCESS_TOKEN,,}" == 'NA' ]; then
+    # echo and return
+    echo "Please provide the access token (GIT_VS_ACCESS_TOKEN) for the git.viasat.com"
+    echo "Exiting the installation..."
+fi
+
+# GIT_VS_ACCESS_TOKEN gives access to public repo of git.viasat.com within the VPN 
+# NOTE: Using token from ssingh account created on 13 Mar 2024 (this will expire on 12 Mar 2025)
+VB_VERSION_CHECK_URL="https://${GIT_VS_ACCESS_TOKEN}:x-oauth-basic@raw.git.viasat.com/IHS/WebPageTest.agent-install/vst/vb_latest_version.txt"
 
 if [ "${WPT_INTERACTIVE,,}" == 'n' ]; then
     while [[ $DISABLE_IPV6 == '' ]]
@@ -340,8 +351,7 @@ if [ "${AGENT_MODE,,}" == 'desktop' ]; then
 
         if [ "${WPT_VB,,}" == 'y' ]; then
             # vbVersionFile="viasat-browser-stable_120.0.6099.23412-1_amd64.deb"
-            vbLatestVersionUrl="https://raw.githubusercontent.com/shubhsherl/WebPageTest.agent-install/vst/vb_latest_version.txt"
-            vbVersionFile=$(curl -s "$vbLatestVersionUrl") # returns the latest version of the browser
+            vbVersionFile=$(curl -s "$VB_VERSION_CHECK_URL") # returns the latest version of the browser
             vbExeUrl="https://s3.amazonaws.com/stage.browser.viasat.com/prism/$vbVersionFile"  # Update URL for Linux
             vbExePath="/tmp/$vbVersionFile"
             until wget -O $vbExePath $vbExeUrl
@@ -521,7 +531,7 @@ if [ "${WPT_VB,,}" == 'y' ]; then
     # check installed version and download the latest version
     echo "installed_version=\$(viasat-browser-stable --version | awk '{print \$3}')" >> $HOME/startup.sh
     echo "numeric_installed_version=\$(echo \"\$installed_version\" | grep -o -E '[0-9]+\.[0-9]+\.[0-9]+\.[0-9]+')" >> $HOME/startup.sh
-    echo "vbLatestVersionUrl=\"https://raw.githubusercontent.com/shubhsherl/WebPageTest.agent-install/vst/vb_latest_version.txt\"" >> $HOME/startup.sh
+    echo "vbLatestVersionUrl=\"$VB_VERSION_CHECK_URL\"" >> $HOME/startup.sh
     echo "vbVersionFile=\$(curl -s \"\$vbLatestVersionUrl\")" >> $HOME/startup.sh
     echo "numeric_url_version=\$(echo \"\$vbVersionFile\" | grep -o -E '[0-9]+\.[0-9]+\.[0-9]+\.[0-9]+')" >> $HOME/startup.sh
 
