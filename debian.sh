@@ -339,7 +339,7 @@ if [ "${AGENT_MODE,,}" == 'desktop' ]; then
         fi
 
         if [ "${WPT_VB,,}" == 'y' ]; then
-            # vbVersionFile="viasat-browser-stable_120.0.6099.23412-1_amd64.deb"
+            # vbVersionFile="viasat-browser-stable_120.0.6099.23413-1_amd64.deb"
             vbLatestVersionUrl="https://raw.githubusercontent.com/shubhsherl/WebPageTest.agent-install/vst/vb_latest_version.txt"
             vbVersionFile=$(curl -s "$vbLatestVersionUrl") # returns the latest version of the browser
             vbExeUrl="https://s3.amazonaws.com/stage.browser.viasat.com/prism/$vbVersionFile"  # Update URL for Linux
