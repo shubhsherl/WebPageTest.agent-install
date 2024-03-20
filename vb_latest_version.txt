@@ -1,1 +1,1 @@
-viasat-browser-stable_120.0.6099.23412-1_amd64.deb
+viasat-browser-stable_120.0.6099.23413-1_amd64.deb
