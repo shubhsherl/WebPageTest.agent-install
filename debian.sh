@@ -45,6 +45,10 @@ set -eu
 : ${WPT_INTERACTIVE:='n'}
 : ${WPT_BRANCH:='vst_lin'}
 : ${GIT_VS_ACCESS_TOKEN:='NA'}
+: ${AWS_ACCESS_KEY_ID:='NA'}
+: ${AWS_SECRET_ACCESS_KEY:='NA'}
+: ${AWS_DEFAULT_REGION:='us-east-1'}
+: ${AWS_EC2_ASG_NAME:='prism-lin-wpt-agent-asg'}
 # if [ "${WPT_INTERACTIVE,,}" == 'y' ]; then
 #     : ${WPT_BRANCH:='master'}
 # else
@@ -319,7 +323,7 @@ fi
 #**************************************************************************************************
 # Python Modules
 #**************************************************************************************************
-until sudo pip3 install dnspython monotonic pillow psutil requests tornado wsaccel brotli fonttools selenium future usbmuxwrapper pytz tzlocal
+until sudo pip3 install boto3 dnspython monotonic pillow psutil requests tornado wsaccel brotli fonttools selenium future usbmuxwrapper pytz tzlocal
 do
     sleep 1
 done
@@ -605,18 +609,21 @@ echo '#!/bin/sh' > $HOME/agent.sh
 echo 'sudo renice -18 $$' > $HOME/agent.sh
 
 echo 'EC2_INSTANCE_ID=$(cat /var/lib/cloud/data/instance-id)' >> $HOME/agent.sh
+echo "export AWS_ACCESS_KEY_ID=$AWS_ACCESS_KEY_ID" >> $HOME/agent.sh
+echo "export AWS_SECRET_ACCESS_KEY=$AWS_SECRET_ACCESS_KEY" >> $HOME/agent.sh
+echo "export AWS_DEFAULT_REGION=$AWS_DEFAULT_REGION" >> $HOME/agent.sh
 
 if [ "${WPT_INTERACTIVE,,}" == 'y' ]; then
 
 # Agent invocation (depending on config)
 if [ "${AGENT_MODE,,}" == 'android' ]; then
-    echo "python3 $HOME/WebPageTest.agent/wptagent.py -vvvv $NAME_OPTION --name \$EC2_INSTANCE_ID --location $WPT_LOCATION $KEY_OPTION --server \"http://$WPT_SERVER/work/\" --android" >> $HOME/agent.sh
+    echo "python3 $HOME/WebPageTest.agent/wptagent.py -vvvv $NAME_OPTION --checkec2state --ec2asgname $AWS_EC2_ASG_NAME --ec2instanceid \$EC2_INSTANCE_ID --name \$EC2_INSTANCE_ID --location $WPT_LOCATION $KEY_OPTION --server \"http://$WPT_SERVER/work/\" --android" >> $HOME/agent.sh
 fi
 if [ "${AGENT_MODE,,}" == 'ios' ]; then
-    echo "python3 $HOME/WebPageTest.agent/wptagent.py -vvvv $NAME_OPTION --name \$EC2_INSTANCE_ID --location $WPT_LOCATION $KEY_OPTION --server \"http://$WPT_SERVER/work/\" --iOS" >> $HOME/agent.sh
+    echo "python3 $HOME/WebPageTest.agent/wptagent.py -vvvv $NAME_OPTION --checkec2state --ec2asgname $AWS_EC2_ASG_NAME --ec2instanceid \$EC2_INSTANCE_ID --name \$EC2_INSTANCE_ID --location $WPT_LOCATION $KEY_OPTION --server \"http://$WPT_SERVER/work/\" --iOS" >> $HOME/agent.sh
 fi
 if [ "${AGENT_MODE,,}" == 'desktop' ]; then
-    echo "python3 $HOME/WebPageTest.agent/wptagent.py -vvvv --name \$EC2_INSTANCE_ID --server \"http://$WPT_SERVER/work/\" --location $WPT_LOCATION $KEY_OPTION" >> $HOME/agent.sh
+    echo "python3 $HOME/WebPageTest.agent/wptagent.py -vvvv --checkec2state --ec2asgname $AWS_EC2_ASG_NAME --ec2instanceid \$EC2_INSTANCE_ID --name \$EC2_INSTANCE_ID --server \"http://$WPT_SERVER/work/\" --location $WPT_LOCATION $KEY_OPTION" >> $HOME/agent.sh
 fi
 
 else
@@ -720,11 +727,11 @@ fi
 
 # Agent invocation (depending on config)
 if [ "${AGENT_MODE,,}" == 'android' ]; then
-    echo "    python3 wptagent.py -vvvv $NAME_OPTION --name \$EC2_INSTANCE_ID --location $WPT_LOCATION $KEY_OPTION --server \"http://$WPT_SERVER/work/\" --android --exit 60 --alive /tmp/wptagent" >> $HOME/agent.sh
+    echo "    python3 wptagent.py -vvvv $NAME_OPTION --checkec2state --ec2asgname $AWS_EC2_ASG_NAME --ec2instanceid \$EC2_INSTANCE_ID --name \$EC2_INSTANCE_ID --location $WPT_LOCATION $KEY_OPTION --server \"http://$WPT_SERVER/work/\" --android --exit 60 --alive /tmp/wptagent" >> $HOME/agent.sh
     echo "#    python3 wptagent.py -vvvv $NAME_OPTION --location $WPT_LOCATION $KEY_OPTION --server \"http://$WPT_SERVER/work/\" --android --vpntether2 eth0,192.168.0.1 --shaper netem,eth0 --exit 60 --alive /tmp/wptagent" >> $HOME/agent.sh
 fi
 if [ "${AGENT_MODE,,}" == 'ios' ]; then
-    echo "    python3 wptagent.py -vvvv $NAME_OPTION --name \$EC2_INSTANCE_ID --location $WPT_LOCATION $KEY_OPTION --server \"http://$WPT_SERVER/work/\" --iOS --exit 60 --alive /tmp/wptagent" >> $HOME/agent.sh
+    echo "    python3 wptagent.py -vvvv $NAME_OPTION --checkec2state --ec2asgname $AWS_EC2_ASG_NAME --ec2instanceid \$EC2_INSTANCE_ID --name \$EC2_INSTANCE_ID --location $WPT_LOCATION $KEY_OPTION --server \"http://$WPT_SERVER/work/\" --iOS --exit 60 --alive /tmp/wptagent" >> $HOME/agent.sh
 fi
 if [ "${AGENT_MODE,,}" == 'desktop' ]; then
     if [ "${WPT_CLOUD,,}" == 'gce' ]; then
@@ -732,7 +739,7 @@ if [ "${AGENT_MODE,,}" == 'desktop' ]; then
     elif [ "${WPT_CLOUD,,}" == 'ec2' ]; then
         echo "    python3 wptagent.py -vvvv --ec2 --exit 60 --alive /tmp/wptagent" >> $HOME/agent.sh
     else
-        echo "    python3 wptagent.py -vvvv --name \$EC2_INSTANCE_ID --server \"http://$WPT_SERVER/work/\" --location $WPT_LOCATION $KEY_OPTION --exit 60 --alive /tmp/wptagent" >> $HOME/agent.sh
+        echo "    python3 wptagent.py -vvvv --checkec2state --ec2asgname $AWS_EC2_ASG_NAME --ec2instanceid \$EC2_INSTANCE_ID --name \$EC2_INSTANCE_ID --server \"http://$WPT_SERVER/work/\" --location $WPT_LOCATION $KEY_OPTION --exit 60 --alive /tmp/wptagent" >> $HOME/agent.sh
     fi
 fi
 
