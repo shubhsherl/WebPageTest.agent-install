@@ -592,6 +592,24 @@ chmod +x $HOME/firstrun.sh
 fi
 
 #**************************************************************************************************
+# Logrotate script
+#**************************************************************************************************
+# Create the logrotate configuration file for wptagent
+echo "/home/ubuntu/agent.log {" | sudo tee /etc/logrotate.d/wptagent
+echo "    size 5G" | sudo tee -a /etc/logrotate.d/wptagent
+echo "    rotate 5" | sudo tee -a /etc/logrotate.d/wptagent
+echo "    copytruncate" | sudo tee -a /etc/logrotate.d/wptagent
+echo "    compress" | sudo tee -a /etc/logrotate.d/wptagent
+echo "    delaycompress" | sudo tee -a /etc/logrotate.d/wptagent
+echo "    missingok" | sudo tee -a /etc/logrotate.d/wptagent
+echo "    notifempty" | sudo tee -a /etc/logrotate.d/wptagent
+echo "    create 0644 ubuntu ubuntu" | sudo tee -a /etc/logrotate.d/wptagent
+echo "}" | sudo tee -a /etc/logrotate.d/wptagent
+
+echo "Logrotate configuration for wptagent created successfully."
+
+
+#**************************************************************************************************
 # Agent Script
 #**************************************************************************************************
 
@@ -739,7 +757,7 @@ if [ "${AGENT_MODE,,}" == 'desktop' ]; then
     elif [ "${WPT_CLOUD,,}" == 'ec2' ]; then
         echo "    python3 wptagent.py -vvvv --ec2 --exit 60 --alive /tmp/wptagent" >> $HOME/agent.sh
     else
-        echo "    python3 wptagent.py -vvvv --checkec2state --ec2asgname $AWS_EC2_ASG_NAME --ec2instanceid \$EC2_INSTANCE_ID --name \$EC2_INSTANCE_ID --server \"http://$WPT_SERVER/work/\" --location $WPT_LOCATION $KEY_OPTION --exit 60 --alive /tmp/wptagent" >> $HOME/agent.sh
+        echo "    python3 wptagent.py -vvvv --checkec2state --ec2asgname $AWS_EC2_ASG_NAME --ec2instanceid \$EC2_INSTANCE_ID --name \$EC2_INSTANCE_ID --server \"http://$WPT_SERVER/work/\" --location $WPT_LOCATION $KEY_OPTION --exit 60 --alive /tmp/wptagent >> $HOME/agent.log 2>&1" >> $HOME/agent.sh
     fi
 fi
 
@@ -782,7 +800,11 @@ if [ "${WPT_INTERACTIVE,,}" == 'n' ]; then
 
 # Overwrite the existing user crontab
 echo "Setting up crontab..."
-echo "@reboot ${PWD}/startup.sh >> ${PWD}/logfile.log 2>&1" | crontab -u ubuntu -
+# Create a new crontab entry that includes both the reboot task and the weekly logrotate task
+(
+echo "@reboot ${PWD}/startup.sh >> ${PWD}/logfile.log 2>&1"
+echo "0 0 * * 0 /usr/sbin/logrotate /etc/logrotate.d/wptagent"
+) | crontab -u ubuntu -
 
 sudo systemctl restart cron
 
